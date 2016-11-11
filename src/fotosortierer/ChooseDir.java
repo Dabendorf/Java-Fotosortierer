@@ -2,6 +2,7 @@ package fotosortierer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JFileChooser;
 
@@ -10,6 +11,8 @@ public class ChooseDir {
 	private JFileChooser chooser;
 	private String[] fileTypes;
 	private ArrayList<String> allPicturePaths = new ArrayList<String>();
+	private String mainPath;
+	private HashMap<String, Integer> fileNameCounter = new HashMap<String, Integer>();
 	
 	public ChooseDir(String[] fileTypes) {
 		this.fileTypes = fileTypes;
@@ -23,32 +26,48 @@ public class ChooseDir {
 	    chooser.setAcceptAllFileFilterUsed(false);
 
 	    if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-	    	String path = chooser.getSelectedFile().getPath();
+	    	String path = chooser.getSelectedFile().getAbsolutePath();
 	    	listSubFolders(path);
-	    	System.out.println("Main path:"+path); //DEBUG
-	    	System.out.println("Paths of pictures: "+allPicturePaths); //DEBUG
-	    	System.out.println("Number of pictures: "+allPicturePaths.size()); //DEBUG
+	    	mainPath = path;
+	    	//System.out.println("Main path:"+path); //DEBUG
+	    	//System.out.println("Paths of pictures: "+allPicturePaths); //DEBUG
+	    	//System.out.println("Number of pictures: "+allPicturePaths.size()); //DEBUG
+	    	
+	    	for(String str : allPicturePaths) {
+	    		File file = new File(str);
+	    		int counter;
+	    		//System.out.println("Parent name: "+file.getParentFile().getName()); //DEBUG
+	    		if(fileNameCounter.containsKey(file.getParentFile().getName())) {
+	    			counter = fileNameCounter.get(file.getParentFile().getName());
+	    		} else {
+	    			counter = 0;
+	    		}
+	    		fileNameCounter.put(file.getParentFile().getName(), counter+1);
+	    		String newPath = mainPath+"/"+file.getParentFile().getName()+counter+"."+getFileExtension(file);
+	    		//System.out.println("New FilePath: "+newPath); //DEBUG
+	    		file.renameTo(new File(newPath));
+	    	}
 	    } else {
-	    	System.out.println("No directory selected"); //DEBUG
+	    	//System.out.println("No directory selected"); //DEBUG
 	    }
 	}
 	
 	private void listSubFolders(String path) {
-		System.out.println("Controll Folder: "+path); //DEBUG
+		//System.out.println("Controll Folder: "+path); //DEBUG
 		ArrayList<String> localPicturePaths = new ArrayList<String>();
 		File[] files = new File(path).listFiles();
 		
 		if(files != null) {
 			for(File file : files) {
 			    if(file.isDirectory()) {
-			    	System.out.println("Folder: "+file.getName()); //DEBUG
+			    	//System.out.println("Folder: "+file.getName()); //DEBUG
 			        listSubFolders(file.getAbsolutePath());
 			    } else if(file.isFile()) {
 			    	if(containsIgnoreCase(getFileExtension(file), fileTypes)) {
-			    		System.out.println("File: "+file.getName()); //DEBUG
+			    		//System.out.println("File: "+file.getName()+" in Folder "+file.getParent()); //DEBUG
 				    	localPicturePaths.add(file.getAbsolutePath());
 			    	} else {
-			    		System.out.println("Ignore File: "+file.getName()); //DEBUG
+			    		//System.out.println("Ignore File: "+file.getName()); //DEBUG
 			    	}
 			    }
 			}
