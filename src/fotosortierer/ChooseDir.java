@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 public class ChooseDir {
 	
@@ -13,9 +14,17 @@ public class ChooseDir {
 	private ArrayList<String> allPicturePaths = new ArrayList<String>();
 	private String mainPath;
 	private HashMap<String, Integer> fileNameCounter = new HashMap<String, Integer>();
+	private ArrayList<Integer> hashCodes = new ArrayList<Integer>();
 	
-	public ChooseDir(String[] fileTypes) {
+	private boolean findDuplicates;
+	private boolean copyInsteadMove;
+	private int intMoved = 0;
+	private int intDuplicates = 0;
+	
+	public ChooseDir(String[] fileTypes, boolean findDuplicates, boolean copyInsteadMove) {
 		this.fileTypes = fileTypes;
+		this.findDuplicates = findDuplicates;
+		this.copyInsteadMove = copyInsteadMove;
 		chooser = new JFileChooser();
 	}
 	
@@ -35,19 +44,36 @@ public class ChooseDir {
 	    	
 	    	for(String str : allPicturePaths) {
 	    		File file = new File(str);
-	    		int counter;
-	    		//System.out.println("Parent name: "+file.getParentFile().getName()); //DEBUG
-	    		if(fileNameCounter.containsKey(file.getParentFile().getName())) {
-	    			counter = fileNameCounter.get(file.getParentFile().getName());
+	    		
+	    		if(hashCodes.contains(file.hashCode()) && findDuplicates) {
+	    			System.out.println("DOUBLE: "+file.getName()); //DEBUG
+	    			intDuplicates++;
 	    		} else {
-	    			counter = 0;
+	    			System.out.println(file.hashCode());
+	    			hashCodes.add(file.hashCode());
+	    			int counter;
+		    		//System.out.println("Parent name: "+file.getParentFile().getName()); //DEBUG
+		    		if(fileNameCounter.containsKey(file.getParentFile().getName())) {
+		    			counter = fileNameCounter.get(file.getParentFile().getName());
+		    		} else {
+		    			counter = 0;
+		    		}
+		    		fileNameCounter.put(file.getParentFile().getName(), counter+1);
+		    		String newPath = mainPath+"/"+file.getParentFile().getName()+counter+"."+getFileExtension(file);
+		    		System.out.println("New FilePath: "+newPath); //DEBUG
+		    		file.renameTo(new File(newPath));
+		    		intMoved++;
 	    		}
-	    		fileNameCounter.put(file.getParentFile().getName(), counter+1);
-	    		String newPath = mainPath+"/"+file.getParentFile().getName()+counter+"."+getFileExtension(file);
-	    		//System.out.println("New FilePath: "+newPath); //DEBUG
-	    		file.renameTo(new File(newPath));
+	    	}
+	    	
+	    	String word1 = copyInsteadMove ? "kopiert" : "bewegt";
+	    	if(findDuplicates) {
+	    		JOptionPane.showMessageDialog(null, "Es wurden "+intMoved+" Dateien "+word1+" und "+intDuplicates+" doppelte Dateien entfernt.", "Vorgang abgeschlossen", JOptionPane.INFORMATION_MESSAGE);
+	    	} else {
+	    		JOptionPane.showMessageDialog(null, "Es wurden "+intMoved+" Dateien "+word1+".", "Vorgang abgeschlossen", JOptionPane.INFORMATION_MESSAGE);
 	    	}
 	    } else {
+	    	JOptionPane.showMessageDialog(null, "Es wurde kein Verzeichnis ausgewählt!", "Ungültige Eingabe", JOptionPane.ERROR_MESSAGE);
 	    	//System.out.println("No directory selected"); //DEBUG
 	    }
 	}
