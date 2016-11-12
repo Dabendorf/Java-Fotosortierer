@@ -15,18 +15,36 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+/**
+ * Diese Klasse erstellt das Hauptfenster des Projekts, in dem Einstellungen getroffen und der Sortiervorgang gestartet werden koennen.
+ * 
+ * @author Lukas Schramm
+ * @version 1.0
+ *
+ */
 public class SortWindow {
 	
+	/**Hauptfenster des Programms*/
 	private JFrame frame1 = new JFrame("Fotosortierer");
+	/**Objekt des Ordnerwaehlfensters*/
 	private ChooseDir directWindow;
 	
+	/**Checkbox fuer die Erkennung doppelter Elemente*/
 	private JCheckBox checkBoxDuplicates = new JCheckBox("Doppelte Fotos löschen");
+	/**Eingabefeld fuer zu pruefende Dateitypen*/
 	private JTextField textFieldFileTypes = new JTextField("jpg, png");
+	/**Radiobox ob Dateien kopiert werden sollen*/
 	private JRadioButton radioCopy = new JRadioButton("Kopieren");
+	/**Radiobox ob Dateien verschoben werden sollen*/
 	private JRadioButton radioMove = new JRadioButton("Verschieben");
+	/**Button zum Oeffnen der Ordnerauswahl*/
 	private JButton chooseDirButton = new JButton("Verzeichnis wählen");
+	/**Gruppe von Radiobuttons*/
     private ButtonGroup bg = new ButtonGroup();
 
+    /**
+     * Konstruktor der SortWindowKlasse, welcher das gesamte Design aufgrund von GridBagLayouts aufbaut.
+     */
 	public SortWindow() {
 		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame1.setPreferredSize(new Dimension(250,150));
@@ -74,6 +92,10 @@ public class SortWindow {
 		frame1.setVisible(true);
 	}
 	
+	/**
+	 * Diese Methode extrahiert die eingegebenen Dateiendungen aus der Eingabebox in einen String-Array.
+	 * @return Gibt String-Array eingegebener Dateiendungen zurueck
+	 */
 	private String[] extractFileTypes() {
 		String str = textFieldFileTypes.getText();
 		

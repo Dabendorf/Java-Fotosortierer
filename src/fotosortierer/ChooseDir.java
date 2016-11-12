@@ -16,21 +16,45 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+/**
+ * Diese Klasse erstellt das Auswahlfenster fuer den Hauptordner und fuehrt alle Dateiverarbeitungen aus.
+ * 
+ * @author Lukas Schramm
+ * @version 1.0
+ *
+ */
 public class ChooseDir {
 	
+	/**FileChooseFensterElement*/
 	private JFileChooser chooser;
+	/**String-Array aus ueberpruefbaren Dateiendungen*/
 	private String[] fileTypes;
+	/**Pfade aller gefundenen Dateien*/
 	private ArrayList<String> allPicturePaths = new ArrayList<String>();
+	/**Pfad des gewaehlten Oberordners*/
 	private String mainPath;
+	/**Key-Value-Verzeichnis aus bisherigen Ordnernamen und Zaehler fuer die Menge von Dateien*/
 	private HashMap<String, Integer> fileNameCounter = new HashMap<String, Integer>();
+	/**Hashcodes bisheriger Dateien zur Ueberpruefung von Dopplungen*/
 	private ArrayList<String> hashCodes = new ArrayList<String>();
+	/**Dateierweiterungen fuer Fotodateien*/
 	private String[] photoExtensions = {"jpg", "jpeg", "png"};
 	
+	/**Boolean ob Duplikate entfernt werden sollen*/
 	private boolean findDuplicates;
+	/**Boolean ob Dateien kopiert statt verschoben werden sollen*/
 	private boolean copyInsteadMove;
+	/**Zaehler wie viele Dateien kopiert bzw. verschoben wurden*/
 	private int intMoved = 0;
+	/**Zaehler wie viele Duplikate ignoriert wurden*/
 	private int intDuplicates = 0;
 	
+	/**
+	 * Konstruktor des Ordnerauswahlfensters zur Uebergabe wichtiger Parameter
+	 * @param fileTypes String-Array aus ueberpruefbaren Dateiendungen
+	 * @param findDuplicates Boolean ob Duplikate entfernt werden sollen
+	 * @param copyInsteadMove Boolean ob Dateien kopiert statt verschoben werden sollen
+	 */
 	public ChooseDir(String[] fileTypes, boolean findDuplicates, boolean copyInsteadMove) {
 		this.fileTypes = fileTypes;
 		this.findDuplicates = findDuplicates;
@@ -38,6 +62,11 @@ public class ChooseDir {
 		chooser = new JFileChooser();
 	}
 	
+	/**
+	 * Diese Methode laesst den Nutzer das Verzeichnis auswaehlen und ueberprueft etwaige Aenderungswuensche mit Bestaetigungsfenstern.
+	 * Ferner wertet sie Nutzereinstellungen wie Dateiendungen oder Kopiervorgaenge aus.
+	 * Anschliessend fuehrt sie das Programm aus und informiert bei Abschluss ueber alle getaetigten Vorgaenge.
+	 */
 	public void chooseDirect() {
 		chooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
 	    chooser.setDialogTitle("Verzeichnis auswählen");
@@ -118,6 +147,10 @@ public class ChooseDir {
 	    }
 	}
 	
+	/**
+	 * Diese Methode listet alle Subordner und -dateien aus einem Pfad auf, was die rekursive Erfassung aller Verzeichnisse eines Pfads erlaubt.
+	 * @param path Pfad des Subordners
+	 */
 	private void listSubFolders(String path) {
 		//System.out.println("Controll Folder: "+path); //DEBUG
 		ArrayList<String> localPicturePaths = new ArrayList<String>();
@@ -142,7 +175,13 @@ public class ChooseDir {
 		allPicturePaths.addAll(localPicturePaths);
 	}
 	
-	//Source: http://stackoverflow.com/questions/3571223/how-do-i-get-the-file-extension-of-a-file-in-java
+	/**
+	 * Diese Methode gibt die Dateiendung einer Datei zurueck.
+	 * 
+	 * Source: http://stackoverflow.com/questions/3571223/how-do-i-get-the-file-extension-of-a-file-in-java
+	 * @param file Zu pruefende Datei
+	 * @return Gibt Dateiendung zurueck
+	 */
 	private String getFileExtension(File file) {
 	    String name = file.getName();
 	    try {
@@ -152,7 +191,14 @@ public class ChooseDir {
 	    }
 	}
 	
-	//Source: http://stackoverflow.com/questions/8751455/arraylist-contains-case-sensitivity
+	/**
+	 * Diese Methode ueberprueft ob ein String, unabhaengig von Gross- und Kleinschreibung in einem String-Array vorkommt.
+	 * 
+	 * Source: http://stackoverflow.com/questions/8751455/arraylist-contains-case-sensitivity
+	 * @param str Zu pruefender String
+	 * @param list Array aus Strings
+	 * @return Boolean ueber Vorhandensein des Strings in der Liste
+	 */
 	private boolean containsIgnoreCase(String str, String[] list){
 	    for(String i : list){
 	        if(i.equalsIgnoreCase(str))
@@ -161,7 +207,13 @@ public class ChooseDir {
 	    return false;
 	}
 	
-	//Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	/**
+	 * Diese Methode wandelt eine Menge an Bytes in einen hexadezimalen String um.
+	 * 
+	 * Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	 * @param inBytes Array aus Bytes
+	 * @return Rueckgabe des Hex-Strings
+	 */
 	private static String returnHex(byte [] inBytes) {
 		String hexString = null;
 		for(int i=0;i<inBytes.length;i++) {
@@ -170,7 +222,13 @@ public class ChooseDir {
 		return hexString;
 	}
 	
-	//Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	/**
+	 * Diese Methode generiert den md5-Hashcode eines Bildes.
+	 * 
+	 * Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	 * @param file Zu pruefendes Bild
+	 * @return Ausgabe des md5-Hashes
+	 */
 	private String generateHash(File file) {
 		try {
 			BufferedImage buffImg = ImageIO.read(file);
