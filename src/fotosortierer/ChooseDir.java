@@ -1,9 +1,13 @@
 package fotosortierer;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -14,7 +18,8 @@ public class ChooseDir {
 	private ArrayList<String> allPicturePaths = new ArrayList<String>();
 	private String mainPath;
 	private HashMap<String, Integer> fileNameCounter = new HashMap<String, Integer>();
-	private ArrayList<Integer> hashCodes = new ArrayList<Integer>();
+	private ArrayList<String> hashCodes = new ArrayList<String>();
+	private String[] photoExtensions = {"jpg", "jpeg", "png"};
 	
 	private boolean findDuplicates;
 	private boolean copyInsteadMove;
@@ -45,12 +50,20 @@ public class ChooseDir {
 	    	for(String str : allPicturePaths) {
 	    		File file = new File(str);
 	    		
-	    		if(hashCodes.contains(file.hashCode()) && findDuplicates) {
-	    			System.out.println("DOUBLE: "+file.getName()); //DEBUG
-	    			intDuplicates++;
-	    		} else {
-	    			System.out.println(file.hashCode());
-	    			hashCodes.add(file.hashCode());
+	    		boolean fileReady = true;
+	    		if(findDuplicates && containsIgnoreCase(getFileExtension(file), photoExtensions)) {
+	    			String hash = generateHash(file);
+	    			
+	    			if(hashCodes.contains(hash)) {
+	    				System.out.println("Doppelt: "+file.getName()); //DEBUG
+	    				intDuplicates++;
+	    				fileReady = false;
+	    			} else {
+	    				hashCodes.add(hash);
+	    			}
+	    		}
+	    		
+	    		if(fileReady) {
 	    			int counter;
 		    		//System.out.println("Parent name: "+file.getParentFile().getName()); //DEBUG
 		    		if(fileNameCounter.containsKey(file.getParentFile().getName())) {
@@ -119,5 +132,33 @@ public class ChooseDir {
 	            return true;
 	    }
 	    return false;
+	}
+	
+	//Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	private static String returnHex(byte [] inBytes) {
+		String hexString = null;
+		for(int i=0;i<inBytes.length;i++) {
+			hexString += Integer.toString((inBytes[i] & 0xff) + 0x100, 16).substring(1);
+		}
+		return hexString;
+	}
+	
+	//Source: https://sites.google.com/site/matthewjoneswebsite/java/md5-hash-of-an-image
+	private String generateHash(File file) {
+		try {
+			BufferedImage buffImg = ImageIO.read(file);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(buffImg, getFileExtension(file), outputStream);
+            byte[] data = outputStream.toByteArray();
+
+            //System.out.println("Start MD5 Digest");
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(data);
+            byte[] hash = md.digest();
+            return returnHex(hash);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
