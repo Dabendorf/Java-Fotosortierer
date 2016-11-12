@@ -38,14 +38,26 @@ public class ChooseDir {
 	    chooser.setDialogTitle("Verzeichnis auswählen");
 	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    chooser.setAcceptAllFileFilterUsed(false);
-
+	    
 	    if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 	    	String path = chooser.getSelectedFile().getAbsolutePath();
 	    	listSubFolders(path);
 	    	mainPath = path;
+	    	
 	    	//System.out.println("Main path:"+path); //DEBUG
 	    	//System.out.println("Paths of pictures: "+allPicturePaths); //DEBUG
 	    	//System.out.println("Number of pictures: "+allPicturePaths.size()); //DEBUG
+	    	
+	    	String lineSep = System.getProperty("line.separator");
+	    	int resultQuest = JOptionPane.showConfirmDialog(null,
+	                "Möchten Sie den Sortiervorgang für das folgende Verzeichnis starten?"+lineSep+mainPath+lineSep+"Der Vorgang kann einige Minuten dauern.",
+	                "Vorgang beginnen?",
+	                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	    	if(resultQuest == JOptionPane.NO_OPTION) {
+	    		return;
+	    	}
+	    	
+	    	JOptionPane.showMessageDialog(null, "Bitte warten Sie auf die Bestätigungsnachricht.", "Vorgang startet", JOptionPane.INFORMATION_MESSAGE);
 	    	
 	    	for(String str : allPicturePaths) {
 	    		File file = new File(str);
