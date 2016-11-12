@@ -3,6 +3,11 @@ package fotosortierer;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +72,7 @@ public class ChooseDir {
 	    			String hash = generateHash(file);
 	    			
 	    			if(hashCodes.contains(hash)) {
-	    				System.out.println("Doppelt: "+file.getName()); //DEBUG
+	    				//System.out.println("Duplicate: "+file.getName()); //DEBUG
 	    				intDuplicates++;
 	    				fileReady = false;
 	    			} else {
@@ -85,8 +90,18 @@ public class ChooseDir {
 		    		}
 		    		fileNameCounter.put(file.getParentFile().getName(), counter+1);
 		    		String newPath = mainPath+"/"+file.getParentFile().getName()+counter+"."+getFileExtension(file);
-		    		System.out.println("New FilePath: "+newPath); //DEBUG
-		    		file.renameTo(new File(newPath));
+		    		
+		    		if(copyInsteadMove) {
+		    			//System.out.println("Copied to: "+newPath); //DEBUG
+		    			try {
+							Files.copy(file.toPath(), Paths.get(newPath), StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+		    		} else {
+		    			//System.out.println("Moved to: "+newPath); //DEBUG
+			    		file.renameTo(new File(newPath));
+		    		}
 		    		intMoved++;
 	    		}
 	    	}
